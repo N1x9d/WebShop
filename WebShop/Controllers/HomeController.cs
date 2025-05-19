@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Models;
 
@@ -19,6 +20,15 @@ public class HomeController : Controller
         return View(bvm);
     }
 
+    [HttpPost]
+    public IActionResult AddProduct([FromBody]Product product)
+    {
+        product.AddDate = DateTimeOffset.Now;
+        DAO.AddNewProduct(product);
+        var bvm = new BaseViewModel();
+        return View(bvm);
+    }
+
     public IActionResult Product(Guid ProductId)
     {
        var p = DAO.GetProduct(ProductId).Result;
@@ -29,7 +39,7 @@ public class HomeController : Controller
     {
         var storeModel = new StoreModel();
         storeModel.Categories = DAO.GetTypesInfo().Result;
-        var g = storeModel.Categories.First(c => c.Type.ToString() == Type);
+        var g = storeModel.Categories.First(c => c.ProductType.ToString() == Type);
         g.IsSelected = true;
         ProductType type = (ProductType)Enum.Parse(typeof(ProductType), Type);
         storeModel.Products = DAO.GetProducts(type).Result;

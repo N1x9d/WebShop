@@ -1,4 +1,6 @@
-﻿namespace WebShop.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebShop.Models
 {
     public class BaseViewModel
     {
@@ -12,7 +14,8 @@
 
     public class Category
     {
-        public ProductType Type { get; set; }
+        [Key]
+        public ProductType ProductType { get; set; }
         public long Count { get; set; }
         public bool IsSelected { get; set; }
     }

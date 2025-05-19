@@ -39,17 +39,17 @@
 						@foreach (var cat in Model.Categories)
 						{
 							<div class="input-checkbox">
-								@if (cat.IsSelected)
+								@if ((bool)cat.IsSelected)
 								{
-									<input type="checkbox" id="@cat.Type" checked/>
+									<input type="checkbox" id="@cat.ProductType" checked/>
 								}
 								else
 								{
-									<input type="checkbox" id="@cat.Type" />
+									<input type="checkbox" id="@cat.ProductType" />
 								}
 								<label for="category-1">
 								<span></span>
-								@cat.Type.ToString()
+								@cat.ProductType.ToString()
 								<small>(@cat.Count)</small>
 							</label>
 						</div>

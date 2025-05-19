@@ -5,7 +5,7 @@
 <div class="col-md-4 col-xs-6">
 	<div class="product">
 		<div class="product-img">
-			<img src="@Model.ImagesUrl[0]" alt="">
+			<img src="@Model.Images.FirstOrDefault().url" alt="">
 		</div>
 		<div class="product-body">
 			<p class="product-category">@Model.ProductType</p>

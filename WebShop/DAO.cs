@@ -1,5 +1,6 @@
 ﻿using CNative;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NuGet.DependencyResolver;
 using System.Data.Common;
@@ -11,37 +12,16 @@ namespace WebShop
 {
     public static class DAO
     {
-        private const string _connString = "Server=localhost;Port=5432;User Id=postgres;Password=root;Database=postgres;";
-        private static NpgsqlConnection GetConnection() 
-        {
-            var connection = new NpgsqlConnection(_connString);
-            connection.Open();
-            return connection;
-        }
+        
 
         public static async Task<Product> GetProduct(Guid id)
         {
             try
             {
-                using var cmd = new NpgsqlCommand();
-                cmd.Connection = GetConnection();
-                cmd.CommandText = $"SELECT * FROM product WHERE id='{id}'";
-                NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-
-                await reader.ReadAsync();
-                var product = new Product(
-                id: (Guid)reader["id"],
-                productType: (ProductType)reader["producttypeid"],
-                brand: reader["brand"].ToString(),
-                model: reader["model"].ToString(),
-                price: (decimal)reader["price"],
-                sale: (int)reader["sale"],
-                addDate: (DateTime)reader["adddate"],
-                description: reader["description"].ToString(),
-                inStock: (bool)reader["instock"]
-                );
-                await DAO.SetProductImages(product);
-                return product;
+                using (WebshopdbContext db = new WebshopdbContext())
+                {
+                    return db.Products.Where(c => c.Id == id).Include(c => c.Images).FirstOrDefault();
+                }
             }
             catch (Exception e)
             {
@@ -49,34 +29,30 @@ namespace WebShop
             }
         }
 
+        public static async void AddNewProduct(Product product)
+        {
+            try
+            {
+                using (WebshopdbContext db = new WebshopdbContext())
+                {
+                    db.Products.Add(product);
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         public static async Task<List<Product>> GetProducts(ProductType type)
         {
             try
             {
-                using var cmd = new NpgsqlCommand();
-                cmd.Connection = GetConnection();
-                cmd.CommandText = $"SELECT * FROM product WHERE producttypeid='{(int)type}'";
-                NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-                var result = new List<Product>();
-                while (await reader.ReadAsync())
+                using (WebshopdbContext db = new WebshopdbContext())
                 {
-                    var product = new Product(
-                    id: (Guid)reader["id"],
-                    productType: (ProductType)reader["producttypeid"],
-                    brand: reader["brand"].ToString(),
-                    model: reader["model"].ToString(),
-                    price: (decimal)reader["price"],
-                    sale: (int)reader["sale"],
-                    addDate: (DateTime)reader["adddate"],
-                    description: reader["description"].ToString(),
-                    inStock: (bool)reader["instock"]
-                    );
-                    await DAO.SetProductImages(product);
-                    result.Add(product);
-
+                    return db.Products.Where(c => c.ProductType == type).Include(c => c.Images).ToList();
                 }
-                return result;
             }
             catch(Exception e)
             {
@@ -88,21 +64,10 @@ namespace WebShop
         {
             try
             {
-                using var cmd = new NpgsqlCommand();
-                cmd.Connection = GetConnection();
-                cmd.CommandText = $"SELECT producttypeid, COUNT(*) FROM product GROUP BY producttypeid";
-                NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-                var result = new List<Category>();
-                while (await reader.ReadAsync())
+                using (WebshopdbContext db = new WebshopdbContext())
                 {
-                    result.Add(new Category
-                    {
-                        Count = (long)reader["count"],
-                        Type = (ProductType)reader["producttypeid"]
-                    });
+                    return db.Categories.FromSqlInterpolated($"select * from public.getcategories()").ToList();
                 }
-
-                return result;
             }
             catch(Exception e)
             {
@@ -110,17 +75,17 @@ namespace WebShop
             }
         }
 
-        public static async Task SetProductImages(Product product)
-        {
-            using var cmd = new NpgsqlCommand();
-            cmd.Connection = GetConnection();
-            cmd.CommandText = $"SELECT url FROM images WHERE productid='{product.Id}'";
-            NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
-            product.ImagesUrl = new List<string>();
-            while(await reader.ReadAsync())
-            {
-                product.ImagesUrl.Add(reader["url"].ToString());
-            }
-        }
+        //public static async Task SetProductImages(Product product)
+        //{
+        //    using var cmd = new NpgsqlCommand();
+        //    cmd.Connection = GetConnection();
+        //    cmd.CommandText = $"SELECT url FROM images WHERE productid='{product.Id}'";
+        //    NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+        //    product.ImagesUrl = new List<string>();
+        //    while(await reader.ReadAsync())
+        //    {
+        //        product.ImagesUrl.Add(reader["url"].ToString());
+        //    }
+        //}
     }
 }

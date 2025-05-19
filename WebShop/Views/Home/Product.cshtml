@@ -13,22 +13,22 @@
 			<!-- Product main img -->
 			<div class="col-md-5 col-md-push-2">
 				<div id="product-main-img">
-					@foreach (var img in Model.ImagesUrl)
+					@foreach (var img in Model.Images)
 					{
 						<div class="product-preview">
-							<img src="@img" alt="">
+							<img src="@img.url" alt="">
 						</div>
-					}
+					} 
 				</div>
 			</div>
 			<!-- /Product main img -->
 			<!-- Product thumb imgs -->
 			<div class="col-md-2  col-md-pull-5">
 				<div id="product-imgs">
-					@foreach (var img in Model.ImagesUrl)
+					@foreach (var img in Model.Images)
 					{
 						<div class="product-preview">
-							<img src="@img" alt="">
+							<img src="@img.url" alt="">
 						</div>
 					}
 				</div>

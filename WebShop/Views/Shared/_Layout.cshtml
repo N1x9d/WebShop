@@ -91,7 +91,7 @@
 									<option value="0">All Categories</option>
 									@foreach (var cat in Model.Categories)
 									{
-										<option value="@cat.Type">@cat.Type.ToString()</option>
+										<option value="@cat.ProductType">@cat.ProductType.ToString()</option>
 									}
 								</select>
 								<input class="input" placeholder="Search here">
@@ -182,7 +182,7 @@
 				<!-- NAV -->
 
 				<ul class="main-nav nav navbar-nav">
-					@if (Model.Categories.FirstOrDefault(c => c.IsSelected) == null)
+					@if (Model.Categories.FirstOrDefault(c => (bool)c.IsSelected) == null)
 					{
 						<li class="active"><a href="/">Home</a></li>
 					}
@@ -193,14 +193,14 @@
 					<li><a href="#">Hot Deals</a></li>
 					@foreach(var cat in Model.Categories)
 					{
-						if (cat.IsSelected)
+						if ((bool)cat.IsSelected)
 						{
 							<li class="active">
-								<a href="/Home/Products/@cat.Type.ToString()">@cat.Type.ToString()</a></li>
+								<a href="/Home/Products/@cat.ProductType.ToString()">@cat.ProductType.ToString()</a></li>
 						}
 						else
 						{
-							<li><a href="/Home/Products/@cat.Type.ToString()">@cat.Type.ToString()</a></li>
+							<li><a href="/Home/Products/@cat.ProductType.ToString()">@cat.ProductType.ToString()</a></li>
 						}
 					}
 				</ul>
